@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Quality Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general body appearance */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            display: flex; /* flex */
+            align-items: center; /* items-center */
+            justify-content: center; /* justify-center */
+            min-height: 100vh; /* min-h-screen */
+            padding: 1rem; /* p-4 */
+        }
+        /* Style for required numeric inputs to ensure steps for floats */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            appearance: textfield; /* Standard */
+            -moz-appearance: textfield; /* Firefox */
+        }
+        /* Style for validation error messages */
+        .error-input-message {
+            color: #ef4444; /* red-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">🍷 Wine Quality Predictor</h1>
+        <p class="text-gray-600 mb-8 text-center">Enter the physicochemical properties of your red wine to get an instant quality prediction (Good/Bad).</p>
+
+        <div class="mb-6 text-center">
+            <label class="inline-flex items-center mr-6">
+                <input type="radio" class="form-radio text-red-600" name="input_method" value="popular" id="radio-popular" checked>
+                <span class="ml-2 text-gray-700 font-semibold">Choose Popular Wine</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" class="form-radio text-red-600" name="input_method" value="custom" id="radio-custom">
+                <span class="ml-2 text-gray-700 font-semibold">Enter Custom Wine Data</span>
+            </label>
+        </div>
+
+        <form id="wineForm">
+            <div id="popular-wine-section" class="mb-4">
+                <label for="wine-selector" class="block text-gray-700 text-sm font-semibold mb-2">Select a popular Red Wine:</label>
+                <select id="wine-selector" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                    <option value="">-- Select a Wine --</option>
+                    </select>
+            </div>
+
+            <div id="custom-wine-section" class="hidden">
+                <p class="text-gray-600 mb-4 text-center">Enter the specific chemical properties:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <div class="mb-4">
+                        <label for="fixed acidity" class="block text-gray-700 text-sm font-semibold mb-2">Fixed Acidity:</label>
+                        <input type="number" id="fixed acidity" step="0.01" value="0.0" min="0.1" max="16.0" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="fixed acidity-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="volatile acidity" class="block text-gray-700 text-sm font-semibold mb-2">Volatile Acidity:</label>
+                        <input type="number" id="volatile acidity" step="0.001" value="0.0" min="0.05" max="1.6" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="volatile acidity-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="citric acid" class="block text-gray-700 text-sm font-semibold mb-2">Citric Acid:</label>
+                        <input type="number" id="citric acid" step="0.01" value="0.0" min="0.0" max="1.0" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="citric acid-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="residual sugar" class="block text-gray-700 text-sm font-semibold mb-2">Residual Sugar:</label>
+                        <input type="number" id="residual sugar" step="0.1" value="0.0" min="0.5" max="16.0" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="residual sugar-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="chlorides" class="block text-gray-700 text-sm font-semibold mb-2">Chlorides:</label>
+                        <input type="number" id="chlorides" step="0.001" value="0.0" min="0.01" max="0.7" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="chlorides-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="free sulfur dioxide" class="block text-gray-700 text-sm font-semibold mb-2">Free Sulfur Dioxide:</label>
+                        <input type="number" id="free sulfur dioxide" step="1" value="0" min="1" max="72" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="free sulfur dioxide-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="total sulfur dioxide" class="block text-gray-700 text-sm font-semibold mb-2">Total Sulfur Dioxide:</label>
+                        <input type="number" id="total sulfur dioxide" step="1" value="0" min="6" max="290" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="total sulfur dioxide-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="density" class="block text-gray-700 text-sm font-semibold mb-2">Density:</label>
+                        <input type="number" id="density" step="0.0001" value="0.0" min="0.99" max="1.005" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="density-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="pH" class="block text-gray-700 text-sm font-semibold mb-2">pH:</label>
+                        <input type="number" id="pH" step="0.01" value="0.0" min="2.5" max="4.5" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="pH-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="sulphates" class="block text-gray-700 text-sm font-semibold mb-2">Sulphates:</label>
+                        <input type="number" id="sulphates" step="0.01" value="0.0" min="0.2" max="2.0" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="sulphates-error" class="error-input-message hidden"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="alcohol" class="block text-gray-700 text-sm font-semibold mb-2">Alcohol (%):</label>
+                        <input type="number" id="alcohol" step="0.1" value="0.0" min="8.0" max="15.0" required
+                               class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200">
+                        <p id="alcohol-error" class="error-input-message hidden"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 mt-4">
+                <button type="submit"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transform transition duration-300 hover:scale-105 shadow-md">
+                    Predict Quality
+                </button>
+            </div>
+        </form>
+
+        <div id="result" class="mt-8 p-4 rounded-lg text-lg font-semibold text-center hidden">
+            </div>
+        <div id="reasoning" class="mt-4 p-4 rounded-lg bg-gray-50 text-gray-800 hidden">
+            </div>
+        </div>
+
+        <div id="error-message" class="mt-4 p-3 rounded-lg text-red-700 bg-red-100 border border-red-400 hidden">
+            </div>
+    </div>
+
+    <script>
+        // Add this data structure at the top of your <script> tag
+const POPULAR_RED_WINES = [
+{
+    "name": "Cabernet Sauvignon (Full-bodied)",
+    "fixed acidity": 7.8, // Added a typical value
+    "volatile acidity": 0.55,
+    "citric acid": 0.25,
+    "residual sugar": 2.5,
+    "chlorides": 0.065,
+    "free sulfur dioxide": 18,
+    "total sulfur dioxide": 65,
+    "density": 0.997,
+    "pH": 3.6,
+    "sulphates": 0.75,
+    "alcohol": 13.5
+},
+{
+    "name": "Merlot (Medium-bodied)",
+    "fixed acidity": 7.4, // Added a typical value
+    "volatile acidity": 0.48,
+    "citric acid": 0.22,
+    "residual sugar": 2.0,
+    "chlorides": 0.058,
+    "free sulfur dioxide": 16,
+    "total sulfur dioxide": 60,
+    "density": 0.996,
+    "pH": 3.5,
+    "sulphates": 0.68,
+    "alcohol": 13.0
+},
+{
+    "name": "Pinot Noir (Light-bodied)",
+    "fixed acidity": 7.0, // Added a typical value
+    "volatile acidity": 0.40,
+    "citric acid": 0.28,
+    "residual sugar": 1.8,
+    "chlorides": 0.050,
+    "free sulfur dioxide": 14,
+    "total sulfur dioxide": 55,
+    "density": 0.995,
+    "pH": 3.4,
+    "sulphates": 0.60,
+    "alcohol": 12.5
+},
+{
+    "name": "Syrah/Shiraz (Bold, Fruity)",
+    "fixed acidity": 8.0, // Added a typical value
+    "volatile acidity": 0.52,
+    "citric acid": 0.20,
+    "residual sugar": 3.0,
+    "chlorides": 0.070,
+    "free sulfur dioxide": 20,
+    "total sulfur dioxide": 70,
+    "density": 0.9975,
+    "pH": 3.65,
+    "sulphates": 0.80,
+    "alcohol": 14.0
+},
+{
+    "name": "Premium Reserve Red (Excellent Balance)",
+        "fixed acidity": 7.2,       // Good balance
+        "volatile acidity": 0.32,   // Very low, excellent
+        "citric acid": 0.40,        // Good for vibrancy
+        "residual sugar": 2.1,
+        "chlorides": 0.045,         // Very low, clean taste
+        "free sulfur dioxide": 10,  // Low, good for fruit expression
+        "total sulfur dioxide": 40, // Moderate, good preservation
+        "density": 0.994,           // Lighter, often correlated with higher alcohol/lower sugar
+        "pH": 3.4,                  // Ideal pH
+        "sulphates": 0.90,          // Good structure
+        "alcohol": 13.8
+},{
+    "name": "Faulty House Red (High VA & SO2)",
+    "fixed acidity": 7.5,
+    "volatile acidity": 0.85, // Very High: Should trigger bad VA
+    "citric acid": 0.15,
+    "residual sugar": 2.2,
+    "chlorides": 0.095, // High: Should trigger bad chlorides
+    "free sulfur dioxide": 35, // High: Should trigger bad free SO2
+    "total sulfur dioxide": 150, // Very High: Should trigger bad total SO2
+    "density": 0.998,
+    "pH": 3.8, // Slightly high: Should trigger bad pH
+    "sulphates": 0.50, // Low: Should trigger bad sulphates
+    "alcohol": 9.0 // Low: Should trigger bad alcohol
+},
+{
+    "name": "Unremarkable Table Wine (Flat Profile)",
+    "fixed acidity": 6.8, // Slightly low: Should trigger bad fixed acidity
+    "volatile acidity": 0.50, // Borderline, likely neutral now
+    "citric acid": 0.10, // Low: Should trigger bad citric acid
+    "residual sugar": 3.5,
+    "chlorides": 0.070,
+    "free sulfur dioxide": 28, // Borderline, likely neutral now
+    "total sulfur dioxide": 85, // High: Should trigger bad total SO2
+    "density": 0.997,
+    "pH": 3.75, // Slightly high: Should trigger bad pH
+    "sulphates": 0.58, // Borderline, likely neutral now
+    "alcohol": 11.0 // Mid-range
+}
+
+];
+
+// Define reasonable min/max ranges for each feature based on typical red wine datasets
+const featureRanges = {
+"fixed acidity": { min: 0.1, max: 16.0 },
+"volatile acidity": { min: 0.05, max: 1.6 },
+"citric acid": { min: 0.0, max: 1.0 },
+"residual sugar": { min: 0.5, max: 16.0 },
+"chlorides": { min: 0.01, max: 0.7 },
+"free sulfur dioxide": { min: 1, max: 72 },
+"total sulfur dioxide": { min: 6, max: 290 },
+"density": { min: 0.99, max: 1.005 },
+"pH": { min: 2.5, max: 4.5 },
+"sulphates": { min: 0.2, max: 2.0 },
+"alcohol": { min: 8.0, max: 15.0 }
+};
+
+// Function to validate a single input field
+function validateInput(inputId, value) {
+const range = featureRanges[inputId];
+const errorMessageElement = document.getElementById(`${inputId}-error`);
+let isValid = true;
+let message = '';
+
+if (isNaN(value)) {
+    isValid = false;
+    message = 'Please enter a valid number.';
+} else if (value < range.min || value > range.max) {
+    isValid = false;
+    message = `Value must be between ${range.min} and ${range.max}.`;
+}
+
+if (!isValid) {
+    errorMessageElement.textContent = message;
+    errorMessageElement.classList.remove('hidden');
+} else {
+    errorMessageElement.classList.add('hidden');
+    errorMessageElement.textContent = '';
+}
+return isValid;
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+const wineForm = document.getElementById('wineForm');
+const resultDiv = document.getElementById('result');
+const errorMessageDiv = document.getElementById('error-message');
+const reasoningDiv = document.getElementById('reasoning');
+
+const radioPopular = document.getElementById('radio-popular');
+const radioCustom = document.getElementById('radio-custom');
+const popularWineSection = document.getElementById('popular-wine-section');
+const customWineSection = document.getElementById('custom-wine-section');
+const wineSelector = document.getElementById('wine-selector');
+
+// Helper to clear and hide result/error/reasoning
+function clearResults() {
+    resultDiv.textContent = '';
+    resultDiv.classList.add('hidden');
+    resultDiv.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-blue-100', 'text-blue-700');
+    errorMessageDiv.textContent = '';
+    errorMessageDiv.classList.add('hidden');
+    reasoningDiv.innerHTML = '';
+    reasoningDiv.classList.add('hidden');
+}
+
+// Function to toggle sections based on radio selection
+function toggleInputMethod() {
+    clearResults(); // Clear results when switching input methods
+    if (radioPopular.checked) {
+        popularWineSection.classList.remove('hidden');
+        customWineSection.classList.add('hidden');
+        // Reset custom input values to default 0.0 when switching away
+        Object.keys(featureRanges).forEach(feature => {
+            const inputElement = document.getElementById(feature);
+            if (inputElement) { // Check if element exists (popular wines might not have fixed acidity as an ID)
+                inputElement.value = "0.0";
+                document.getElementById(`${feature}-error`).classList.add('hidden'); // Hide errors
+            }
+        });
+        wineSelector.value = ""; // Reset dropdown selection
+    } else {
+        popularWineSection.classList.add('hidden');
+        customWineSection.classList.remove('hidden');
+    }
+}
+
+// Initial setup: call toggleInputMethod on page load
+toggleInputMethod();
+
+// Event listeners for radio buttons
+radioPopular.addEventListener('change', toggleInputMethod);
+radioCustom.addEventListener('change', toggleInputMethod);
+
+// Populate the dropdown with popular wines
+POPULAR_RED_WINES.forEach((wine, index) => {
+    const option = document.createElement('option');
+    option.value = index; // Store the index in the array for easy lookup
+    option.textContent = wine.name;
+    wineSelector.appendChild(option);
+});
+
+// Add event listener for when a wine is selected from the dropdown
+wineSelector.addEventListener('change', (event) => {
+    clearResults(); // Clear results when a new popular wine is selected
+    const selectedIndex = event.target.value;
+    if (selectedIndex !== "") {
+        const selectedWine = POPULAR_RED_WINES[selectedIndex];
+        // Populate the custom form fields with the selected wine's data
+        // (Even though they are hidden, they will be used for prediction)
+        Object.keys(selectedWine).forEach(key => {
+            if (key !== "name") {
+                const inputElement = document.getElementById(key);
+                if (inputElement) { // Ensure the element exists before trying to set its value
+                    inputElement.value = selectedWine[key];
+                    document.getElementById(`${key}-error`).classList.add('hidden'); // Hide errors
+                }
+            }
+        });
+    }
+    // If "-- Select a Wine --" is chosen, the values in the custom fields remain what they were.
+    // The prediction will be based on these values.
+});
+
+
+// --- Form Submission Logic ---
+wineForm.addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    clearResults(); // Clear all previous messages
+
+    let inputData = {};
+    let predictionReady = false;
+
+    if (radioPopular.checked) {
+        const selectedIndex = wineSelector.value;
+        if (selectedIndex === "") {
+            errorMessageDiv.textContent = 'Please select a popular wine from the dropdown.';
+            errorMessageDiv.classList.remove('hidden');
+            return; // Stop submission if no wine is selected
+        }
+        inputData = POPULAR_RED_WINES[selectedIndex];
+        // The popular wine data already includes "name", which we don't need for prediction.
+        // Create a clean object for the API call.
+        const dataToSend = {};
+        for (const key in inputData) {
+            if (key !== "name") { // Exclude the 'name' property
+                dataToSend[key] = inputData[key];
+            }
+        }
+        inputData = dataToSend; // Use this cleaned data for the API call
+        predictionReady = true;
+
+    } else { // Custom wine selected
+        let allInputsValid = true;
+        for (const feature of Object.keys(featureRanges)) {
+            const inputElement = document.getElementById(feature);
+            const value = parseFloat(inputElement.value);
+            inputData[feature] = value;
+            if (!validateInput(feature, value)) {
+                allInputsValid = false;
+            }
+        }
+
+        if (!allInputsValid) {
+            errorMessageDiv.textContent = 'Please correct the invalid custom input values.';
+            errorMessageDiv.classList.remove('hidden');
+            return; // Stop submission if client-side validation fails
+        }
+        predictionReady = true;
+    }
+
+    if (!predictionReady) {
+        errorMessageDiv.textContent = 'An unexpected error occurred in input selection.';
+        errorMessageDiv.classList.remove('hidden');
+        return;
+    }
+
+    // Show loading message
+    resultDiv.textContent = 'Predicting wine quality...';
+    resultDiv.classList.remove('hidden');
+    resultDiv.classList.add('bg-blue-100', 'text-blue-700');
+
+
+    try {
+        // Send data to the backend API
+        const response = await fetch('http://127.0.0.1:5001/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(inputData), // inputData now contains the correct values based on selection
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            throw new Error(errorDetails.error || `HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Display the prediction result
+        resultDiv.classList.remove('bg-blue-100', 'text-blue-700'); // Remove loading style
+        if (data.predicted_quality_numeric === 1) {
+            resultDiv.textContent = `Predicted Quality: ${data.predicted_quality_label} ✨`;
+            resultDiv.classList.add('bg-green-100', 'text-green-700');
+        } else {
+            resultDiv.textContent = `Predicted Quality: ${data.predicted_quality_label} 🍷`;
+            resultDiv.classList.add('bg-red-100', 'text-red-700');
+        }
+        resultDiv.classList.remove('hidden');
+
+        // Generate and display reasoning
+        const generatedReasoning = generateReasoning(inputData, data.predicted_quality_label);
+        reasoningDiv.innerHTML = generatedReasoning;
+        reasoningDiv.classList.remove('hidden'); // Show the reasoning div
+
+
+    } catch (error) {
+        console.error('Prediction Error:', error);
+        resultDiv.classList.add('hidden'); // Hide result div on error
+        errorMessageDiv.textContent = `Error: ${error.message}`;
+        errorMessageDiv.classList.remove('hidden');
+    }
+});
+
+// --- generateReasoning function (from previous response) ---
+function generateReasoning(inputValues, predictedQualityLabel) {
+    const reasoningPoints = [];
+
+    function addPoint(text, type = 'neutral') {
+        reasoningPoints.push({ text: text, type: type });
+    }
+
+    // --- Reasoning for each characteristic ---
+    if (inputValues["fixed acidity"] > 8.5) {
+        addPoint("Higher **fixed acidity** can contribute to a sharper taste, potentially making the wine seem **too tart or unbalanced**.", 'bad');
+    } else if (inputValues["fixed acidity"] < 6.5) {
+        addPoint("Lower **fixed acidity** might result in a flat or dull taste, **lacking freshness**.", 'bad');
+    } else {
+        addPoint("Fixed acidity is within a typical and balanced range.");
+    }
+    // Alcohol
+    if (inputValues.alcohol > 11.0) {
+        addPoint("The wine has **higher alcohol content**, which often contributes to a **fuller body and better perceived quality**.", 'good');
+    } else if (inputValues.alcohol < 9) {
+        addPoint("The **lower alcohol content** might lead to a lighter body, potentially making the wine **less impactful**.", 'bad');
+    } else {
+        addPoint("The alcohol content is in a typical range, contributing to the wine's standard body.");
+    }
+
+    // Volatile Acidity
+    if (inputValues["volatile acidity"] < 0.4) {
+        addPoint("Its **low volatile acidity** indicates a clean taste, **free from vinegary notes**, which is desirable for quality.", 'good');
+    } else if (inputValues["volatile acidity"] > 0.5) {
+        addPoint("The **higher volatile acidity** could suggest slight vinegary characteristics, which **can negatively impact taste**.", 'bad');
+    } else {
+        addPoint("The volatile acidity is at a typical level.");
+    }
+
+    // Sulphates
+    if (inputValues.sulphates > 0.7) {
+        addPoint("The **good sulphate levels** contribute to the wine's stability and overall structure, which **enhances quality**.", 'good');
+    } else if (inputValues.sulphates < 0.6) {
+        addPoint("The **lower sulphate levels** might slightly affect the wine's long-term stability and overall balance.", 'bad');
+    } else {
+        addPoint("Sulphate levels are within a common range.");
+    }
+
+    // Chlorides
+    if (inputValues.chlorides < 0.06) {
+        addPoint("With **low chlorides**, the wine likely has a balanced taste, **avoiding excessive saltiness**.", 'good');
+    } else if (inputValues.chlorides > 0.08) {
+        addPoint("The **higher chlorides** might contribute to a salty or off-taste, which **detracts from quality**.", 'bad');
+    } else {
+        addPoint("Chloride levels are typical.");
+    }
+
+    // pH
+    if (inputValues.pH >= 3.2 && inputValues.pH <= 3.6) {
+        addPoint("Its **pH level is well-balanced**, contributing to good freshness and stability, which **is excellent for wine quality**.", 'good');
+    } else if (inputValues.pH < 3.1 || inputValues.pH > 3.7) { // More pronounced out of range
+        addPoint("The **pH level is significantly outside the ideal range**, which **could impact balance and stability**.", 'bad');
+    } else {
+        addPoint("The pH level is slightly outside the perfect range, which could subtly affect balance.");
+    }
+
+    // Citric Acid
+    if (inputValues["citric acid"] > 0.3) {
+        addPoint("The **good citric acid level** adds a fresh, zesty character, **improving the wine's vibrancy**.", 'good');
+    } else if (inputValues["citric acid"] < 0.15) {
+        addPoint("A **lower citric acid level** might result in less freshness or acidity, potentially **making the wine feel flat**.", 'bad');
+    } else {
+        addPoint("Citric acid is at a common level, contributing to standard acidity.");
+    }
+
+    // Free Sulfur Dioxide
+    if (inputValues["free sulfur dioxide"] < 15) {
+        addPoint("The **free sulfur dioxide levels are on the lower side**, which helps prevent oxidation and **maintains fresh fruit flavors**.", 'good');
+    } else if (inputValues["free sulfur dioxide"] > 28) {
+        addPoint("Higher **free sulfur dioxide levels** might indicate an attempt to mask issues, potentially **impacting the natural aroma**.", 'bad');
+    } else {
+        addPoint("Free sulfur dioxide levels are moderate.");
+    }
+
+    // Total Sulfur Dioxide
+    if (inputValues["total sulfur dioxide"] < 50) {
+        addPoint("The **total sulfur dioxide is moderate**, suggesting good preservation without being overwhelming, which **is beneficial**.", 'good');
+    } else if (inputValues["total sulfur dioxide"] > 80) {
+        addPoint("Very **high total sulfur dioxide** can sometimes be noticeable in taste or smell, potentially **detracting from the wine's appeal**.", 'bad');
+    } else {
+        addPoint("Total sulfur dioxide is within a typical range for preservation.");
+    }
+
+    // Residual Sugar
+    if (inputValues["residual sugar"] > 5) {
+        addPoint("The wine has a **higher residual sugar content**, indicating a **sweeter profile**.", 'neutral');
+    } else if (inputValues["residual sugar"] < 1.5) {
+        addPoint("The wine has **lower residual sugar content**, indicating a **drier profile**.", 'neutral');
+    } else {
+        addPoint("Residual sugar is within a typical range, contributing to a balanced sweetness level.");
+    }
+
+    // Density
+    if (inputValues.density < 0.995) {
+        addPoint("A **lower density** can correlate with higher alcohol or lower sugar, often indicating a **lighter-bodied wine**.", 'neutral');
+    } else if (inputValues.density > 0.998) {
+        addPoint("A **higher density** can suggest more sugar or other dissolved solids, often indicating a **fuller-bodied wine**.", 'neutral');
+    } else {
+        addPoint("The density is at a standard level.");
+    }
+
+    // --- Prepare final HTML output using the structured data ---
+    let finalReasoningHtml = [];
+
+    const goodPoints = reasoningPoints.filter(p => p.type === 'good');
+    const badPoints = reasoningPoints.filter(p => p.type === 'bad');
+    const neutralPoints = reasoningPoints.filter(p => p.type === 'neutral');
+
+    if (goodPoints.length > 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-green-700'>Positive Attributes:</h3><ul>" + goodPoints.map(p => `<li class='mb-1'><strong>${p.text}</strong></li>`).join('') + "</ul>");
+    }
+    if (badPoints.length > 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-red-700'>Areas for Concern:</h3><ul>" + badPoints.map(p => `<li class='mb-1'><strong>${p.text}</strong></li>`).join('') + "</ul>");
+    }
+    if (neutralPoints.length > 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-gray-700'>General Characteristics:</h3><ul>" + neutralPoints.map(p => `<li class='mb-1'><strong>${p.text}</strong></li>`).join('') + "</ul>");
+    }
+
+    if (predictedQualityLabel === "Good" && goodPoints.length === 0 && badPoints.length === 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-gray-700'>Overall Assessment:</h3><p>Based on its balanced chemical properties, this wine is likely to be considered of **good quality**, even without standout individual features.</p>");
+    } else if (predictedQualityLabel === "Bad" && goodPoints.length === 0 && badPoints.length === 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-gray-700'>Overall Assessment:</h3><p>Based on the overall chemical profile, this wine is likely to be considered of **lower quality** due to a combination of factors.</p>");
+    } else if (finalReasoningHtml.length === 0) {
+        finalReasoningHtml.push("<h3 class='text-lg font-semibold text-gray-700'>Analysis:</h3><p>The wine's characteristics fall within typical ranges, presenting a balanced profile.</p>");
+    }
+
+    return finalReasoningHtml.join('<br><br>');
+}
+});
+    </script>
+</body>
+</html>

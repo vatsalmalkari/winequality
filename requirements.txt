@@ -1,0 +1,13 @@
+# requirements.txt
+# This file lists the Python packages required to run the backend of the Wine Quality Prediction project.
+
+Flask==2.3.2  # Or your specific Flask version if different
+Flask-Cors==3.0.10 # Or your specific Flask-Cors version if different
+joblib==1.3.2
+pandas==2.0.3
+numpy==1.26.4
+scikit-learn==1.3.0 # This covers sklearn.tree, sklearn.preprocessing, sklearn.metrics, etc.
+
+# You can get the exact versions of packages you have installed by running:
+# pip freeze > requirements.txt
+# Then manually clean up any irrelevant packages.
