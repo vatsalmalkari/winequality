@@ -6,7 +6,7 @@ Flask-Cors==3.0.10 # Or your specific Flask-Cors version if different
 joblib==1.3.2
 pandas==2.0.3
 numpy==1.26.4
-scikit-learn==1.3.0 # This covers sklearn.tree, sklearn.preprocessing, sklearn.metrics, etc.
+scikit-learn==1.7.0 # This covers sklearn.tree, sklearn.preprocessing, sklearn.metrics, etc.
 
 # You can get the exact versions of packages you have installed by running:
 # pip freeze > requirements.txt
