@@ -1,5 +1,5 @@
 # Import necessary libraries for the Flask API
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template 
 from flask_cors import CORS # To handle Cross-Origin Resource Sharing for frontend
 import joblib # For loading trained models and preprocessing objects
 import pandas as pd
@@ -63,7 +63,7 @@ with app.app_context():
 @app.route('/')
 def home():
     """Simple home route to confirm API is running."""
-    return "Wine Quality Prediction API. Send a POST request to /predict."
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
