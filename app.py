@@ -1,7 +1,10 @@
 # Import necessary libraries for the Flask API
-from flask import Flask, request, jsonify, render_template 
+from flask import Flask, request, jsonify, render_template, send_file 
 from flask_cors import CORS # To handle Cross-Origin Resource Sharing for frontend
 import joblib # For loading trained models and preprocessing objects
+from weasyprint import HTML
+import tempfile
+import datetime
 import pandas as pd
 import numpy as np
 import os # For managing file paths
@@ -65,6 +68,19 @@ def home():
     """Simple home route to confirm API is running."""
     return render_template('index.html')
 
+@app.route('/generate_report', methods=['POST'])
+def generate_report():
+    data = request.json  # Expect JSON: includes inputs, prediction, reasoning_html
+    input_data = data.get("inputs", {})
+    prediction = data.get("prediction", "Unknown")
+    reasoning_html = data.get("reasoning_html", "")
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    rendered = render_template("report_template.html", inputs=input_data, prediction=prediction, reasoning_html=reasoning_html, timestamp=timestamp)
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as pdf_file:
+        HTML(string=rendered).write_pdf(pdf_file.name)
+        return send_file(pdf_file.name, download_name="wine_quality_report.pdf", as_attachment=True)
 @app.route('/predict', methods=['POST'])
 def predict():
     """
